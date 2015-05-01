@@ -1,6 +1,8 @@
-from unittest import TestCase
-from board import Board, BoardDimension, BoardPoint, VERTICAL, HORIZONTAL
+from unittest import TestCase, skip
+from board import Board, BoardDimension, BoardPoint
+from board import VERTICAL, HORIZONTAL, DIAGONAL
 from ship import AircraftCarrier
+from board_errors import InvalidDirectionError, InvalidStartPositionError
 
 
 class BoardTest(TestCase):
@@ -40,3 +42,21 @@ class BoardTest(TestCase):
     def test_placement_of_ship_on_board_horizontally(self):
         ac = AircraftCarrier()
         self.b.place_ship(ship=ac, position=BoardPoint(1, 1), direction=HORIZONTAL)
+
+    def test_placement_of_ship_on_board_diagonally_raises_error(self):
+        ac = AircraftCarrier()
+        with self.assertRaises(InvalidDirectionError) as ce:
+            self.b.place_ship(ship=ac, position=BoardPoint(1, 1),
+                              direction=DIAGONAL)
+
+        the_exception = ce.exception
+        self.assertEqual(the_exception.error_code, InvalidDirectionError.error_code)
+
+    def test_invalid_ship_placement_outside_board(self):
+        ac = AircraftCarrier()
+        with self.assertRaises(InvalidStartPositionError) as ce:
+            self.b.place_ship(ship=ac, position=BoardPoint(11, 11),
+                              direction=VERTICAL)
+
+        the_exception = ce.exception
+        self.assertEqual(the_exception.error_code, InvalidStartPositionError.error_code)
